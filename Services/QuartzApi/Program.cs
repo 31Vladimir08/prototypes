@@ -1,3 +1,5 @@
+using Confluent.Kafka;
+
 using Quartz;
 using Quartz.AspNetCore;
 
@@ -9,6 +11,8 @@ using QuartzApi.Models.Options.DataBase;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<DbSettingsOption>(builder.Configuration.GetSection("DbSettings"));
+builder.Services.Configure<ProducerConfig>(builder.Configuration.GetSection(nameof(ProducerConfig)));
+
 builder.Services.AddDbContextFactory<QuartzContext>();
 builder.Services.RegisterInIoC();
 

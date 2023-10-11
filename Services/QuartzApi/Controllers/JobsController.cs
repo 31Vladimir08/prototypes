@@ -5,6 +5,7 @@ using Quartz;
 using QuartzApi.Exceptions;
 using QuartzApi.Interfaces.Services;
 using QuartzApi.Models;
+using QuartzApi.ViewModel;
 
 namespace QuartzApi.Controllers
 {
@@ -21,18 +22,53 @@ namespace QuartzApi.Controllers
             _quartzService = quartzService;
         }
 
-        [HttpPost(Name = "AddNewJob")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPost()]
+        [Route("addNewJob")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JobResponseModel))]
         public async Task<IActionResult> Add([FromBody] JobSheduleModel vm)
         {
-            if (!CronExpression.IsValidExpression(vm.CronExpression))
+            if (vm.Triggers.Any(x => !CronExpression.IsValidExpression(x.CronExpression)))
             {
                 throw new UserException("Unvalid cron expression.");
             }
 
-            await _quartzService.AddSheduleJobAsync(vm);
+            var newJob = await _quartzService.AddSheduleJobAsync(vm);
 
+            return Ok(newJob);
+        }
+
+        //[HttpPut()]
+        //[Route("updateJob")]
+        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JobResponseModel))]
+        //public async Task<IActionResult> Update([FromBody] JobResponseModel job)
+        //{
+        //}
+
+        [HttpDelete()]
+        [Route("deleteJob")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Delete(JobDeleteVm vm)
+        {
+            await _quartzService.DeleteSheduleJobAsync(vm.JobKey, vm.GroupName);
             return Ok();
+        }
+
+        [HttpGet()]
+        [Route("getJob")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JobResponseModel))]
+        public async Task<IActionResult> Get(string jobKey, string groupName)
+        {
+            var job = await _quartzService.GetSheduleJobAsync(jobKey, groupName);
+            return Ok(job);
+        }
+
+        [HttpGet()]
+        [Route("getJobs")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<JobResponseModel>))]
+        public async Task<IActionResult> GetJobs(string? groupName)
+        {
+            var jobs = await _quartzService.GetSheduleJobsAsync(groupName);
+            return Ok(jobs);
         }
     }
 }
