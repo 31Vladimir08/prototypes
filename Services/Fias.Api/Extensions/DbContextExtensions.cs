@@ -139,13 +139,18 @@ namespace Fias.Api.Extensions
                 {
                     valueStr = $"NULL,";
                 }
-                else if (value == string.Empty)
+                else if (value?.ToString() == string.Empty)
                 {
                     valueStr = $"'',";
                 }
-                else if (propertyType.Name == typeof(DateTime).Name || propertyType.Name == typeof(string).Name)
+                else if (propertyType.Name == typeof(string).Name)
                 {
                     valueStr = $"'{value}',";
+                }
+                else if (propertyType.Name == typeof(DateTime).Name)
+                {
+                    var date = DateTime.Parse(value.ToString());
+                    valueStr = $"'{date.ToString("yyyy-MM-dd HH:mm:ss")}',";
                 }
                 else if (propertyType.Name == typeof(bool).Name)
                 {

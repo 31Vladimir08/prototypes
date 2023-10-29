@@ -17,7 +17,7 @@ namespace QuartzApi.Services
             _factory = factory;
         }
 
-        public async Task<JobResponseModel> AddSheduleJobAsync(JobSheduleModel job)
+        public async Task<JobSheduleModel> AddSheduleJobAsync(JobSheduleModel job)
         {
             if (job?.Triggers is null || !job.Triggers.Any())
             {
@@ -33,7 +33,7 @@ namespace QuartzApi.Services
                 .UsingJobData(jobDataMap)
                 .StoreDurably()
                 .Build();
-            var newJob = new JobResponseModel()
+            var newJob = new JobSheduleModel()
             {
                 Data = job.Data,
                 Description = job.Description,
@@ -76,7 +76,7 @@ namespace QuartzApi.Services
                 throw new UserException("The job wasn't found or deleted.");
         }
 
-        private async Task<IEnumerable<JobResponseModel>> GetGroupSheduleJobAsync(string groupName, IScheduler scheduler)
+        private async Task<IEnumerable<JobSheduleModel>> GetGroupSheduleJobAsync(string groupName, IScheduler scheduler)
         {
             if (string.IsNullOrWhiteSpace(groupName))
             {
@@ -90,7 +90,7 @@ namespace QuartzApi.Services
                 throw new UserException($"Could not find {groupName}");
             }
 
-            var result = new List<JobResponseModel>();
+            var result = new List<JobSheduleModel>();
             foreach (var jobKey in jobKeys)
             {
                 if (jobKey is null)
@@ -104,7 +104,7 @@ namespace QuartzApi.Services
             return result;
         }
 
-        public async Task<IEnumerable<JobResponseModel>> GetSheduleJobsAsync(string? groupName)
+        public async Task<IEnumerable<JobSheduleModel>> GetSheduleJobsAsync(string? groupName)
         {
             var scheduler = await _factory.GetScheduler();
             return string.IsNullOrWhiteSpace(groupName) 
@@ -112,7 +112,7 @@ namespace QuartzApi.Services
                 : await GetGroupSheduleJobAsync(groupName, scheduler);
         }
 
-        private async Task<IEnumerable<JobResponseModel>> GetAllSheduleJobAsync(IScheduler scheduler)
+        private async Task<IEnumerable<JobSheduleModel>> GetAllSheduleJobAsync(IScheduler scheduler)
         {
             
             var jobGroups = await scheduler.GetJobGroupNames();
@@ -122,7 +122,7 @@ namespace QuartzApi.Services
                 throw new UserException($"Could not find jobs");
             }
 
-            var result = new List<JobResponseModel>();
+            var result = new List<JobSheduleModel>();
             foreach (string group in jobGroups)
             {
                 var jobs = await GetGroupSheduleJobAsync(group, scheduler);
@@ -132,18 +132,18 @@ namespace QuartzApi.Services
             return result;
         }
 
-        public async Task<JobResponseModel> GetSheduleJobAsync(string jobKey, string groupName)
+        public async Task<JobSheduleModel> GetSheduleJobAsync(string jobKey, string groupName)
         {
             var scheduler = await _factory.GetScheduler();
             var jobK = new JobKey(jobKey, groupName);
             return await GetJobAsync(jobK, scheduler);
         }
 
-        private async Task<JobResponseModel> GetJobAsync(JobKey key, IScheduler scheduler)
+        private async Task<JobSheduleModel> GetJobAsync(JobKey key, IScheduler scheduler)
         {
             var detail = await scheduler.GetJobDetail(key);
             var triggers = await scheduler.GetTriggersOfJob(key);
-            var job = new JobResponseModel()
+            var job = new JobSheduleModel()
             {
                 JobKey = key.Name,
                 Description = detail?.Description,
@@ -170,7 +170,7 @@ namespace QuartzApi.Services
             return job;
         }
 
-        public async Task UpdateSheduleJobAsync(JobResponseModel job)
+        public async Task UpdateSheduleJobAsync(JobSheduleModel job)
         {
             throw new NotImplementedException();
         }

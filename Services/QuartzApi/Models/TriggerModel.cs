@@ -4,7 +4,6 @@ namespace QuartzApi.Models
 {
     public class TriggerModel
     {
-        [Required]
         public string TriggerKey { get; set; }
 
         [Required]

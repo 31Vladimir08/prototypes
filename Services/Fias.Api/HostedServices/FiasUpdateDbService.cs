@@ -3,6 +3,9 @@
 using Fias.Api.Interfaces.Services;
 using Fias.Api.ViewModels.Models;
 
+using FiasService.Interfaces;
+using FiasService.Models;
+
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Fias.Api.HostedServices
@@ -33,6 +36,14 @@ namespace Fias.Api.HostedServices
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
+                var topic = Environment.GetEnvironmentVariable("KAFKA_TOPIC");
+
+                Task.Run(() => eventConsumer.Consume("KAFKA_TOPIC", UpdateFiasFromWeb));
+            }
+
             _executeAsyncNotify += async (x) =>
             {
                 _updateDbFromFileSemaphore.WaitOne();
@@ -85,6 +96,11 @@ namespace Fias.Api.HostedServices
             }
             else
                 return false;
+        }
+
+        private void UpdateFiasFromWeb(MessageBusModel? model)
+        {
+            _loger.LogWarning("UpdateFiasFromWeb");
         }
     }
 }

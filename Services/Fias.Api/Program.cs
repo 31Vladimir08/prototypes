@@ -1,3 +1,5 @@
+using Confluent.Kafka;
+
 using Fias.Api;
 using Fias.Api.AutoMapperProfile;
 using Fias.Api.Contexts;
@@ -5,6 +7,10 @@ using Fias.Api.Extensions;
 using Fias.Api.Filters;
 using Fias.Api.HostedServices;
 using Fias.Api.Models.Options.DataBase;
+
+using FiasService.Interfaces;
+
+using FiasService;
 
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -24,7 +30,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<DbSettingsOption>(builder.Configuration.GetSection("DbSettings"));
 builder.Services.AddAutoMapper(typeof(AutoMapProfiler));
 builder.Services.AddDbContextFactory<AppDbContext>();
-
+builder.Services.BuildServiceProvider().GetRequiredService<AppDbContext>()
+    .Database.EnsureCreated();
 
 builder.Services.Configure<FormOptions>(options =>
     options.MultipartBodyLengthLimit = 268435456000
@@ -33,8 +40,8 @@ builder.Services.Configure<KestrelServerOptions>(options =>
     options.Limits.MaxRequestBodySize = 268435456000
 );
 
-builder.Services.AddScoped<UploadCallsActionFilter>();
 builder.Services.RegisterInIoC();
+builder.Services.Configure<ConsumerConfig>(builder.Configuration.GetSection(nameof(ConsumerConfig)));
 builder.Services.AddHostedService(provider => provider.GetService<FiasUpdateDbService>());
 
 var app = builder.Build();

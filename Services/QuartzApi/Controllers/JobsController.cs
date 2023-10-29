@@ -10,7 +10,7 @@ using QuartzApi.ViewModel;
 namespace QuartzApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class JobsController : ControllerBase
     {
         private readonly ILogger<JobsController> _logger;
@@ -24,7 +24,7 @@ namespace QuartzApi.Controllers
 
         [HttpPost()]
         [Route("addNewJob")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JobResponseModel))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JobAddResponseViewModel))]
         public async Task<IActionResult> Add([FromBody] JobSheduleModel vm)
         {
             if (vm.Triggers.Any(x => !CronExpression.IsValidExpression(x.CronExpression)))
@@ -34,7 +34,7 @@ namespace QuartzApi.Controllers
 
             var newJob = await _quartzService.AddSheduleJobAsync(vm);
 
-            return Ok(newJob);
+            return Ok(new JobAddResponseViewModel() { GroupName = newJob.GroupName, JobKey = newJob.JobKey });
         }
 
         //[HttpPut()]
@@ -55,7 +55,7 @@ namespace QuartzApi.Controllers
 
         [HttpGet()]
         [Route("getJob")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JobResponseModel))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JobSheduleModel))]
         public async Task<IActionResult> Get(string jobKey, string groupName)
         {
             var job = await _quartzService.GetSheduleJobAsync(jobKey, groupName);
@@ -64,7 +64,7 @@ namespace QuartzApi.Controllers
 
         [HttpGet()]
         [Route("getJobs")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<JobResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<JobSheduleModel>))]
         public async Task<IActionResult> GetJobs(string? groupName)
         {
             var jobs = await _quartzService.GetSheduleJobsAsync(groupName);

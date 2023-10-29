@@ -14,7 +14,6 @@ namespace Fias.Api.Contexts
             : base(options)
         {
             _dbOptions = dbOptions.Value;
-            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

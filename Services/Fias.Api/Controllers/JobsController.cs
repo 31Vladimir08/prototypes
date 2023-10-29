@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fias.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class JobsController : ControllerBase
     {
         private readonly ILogger<JobsController> _logger;

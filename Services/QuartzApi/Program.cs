@@ -1,10 +1,14 @@
 using Confluent.Kafka;
 
+using Mapster;
+
 using Quartz;
 using Quartz.AspNetCore;
 
 using QuartzApi.Enums;
 using QuartzApi.Extensions;
+using QuartzApi.GrpcServices;
+using QuartzApi.Mappers;
 using QuartzApi.Models;
 using QuartzApi.Models.Options.DataBase;
 
@@ -14,7 +18,19 @@ builder.Services.Configure<DbSettingsOption>(builder.Configuration.GetSection("D
 builder.Services.Configure<ProducerConfig>(builder.Configuration.GetSection(nameof(ProducerConfig)));
 
 builder.Services.AddDbContextFactory<QuartzContext>();
+builder.Services.BuildServiceProvider().GetRequiredService<QuartzContext>()
+    .Database.EnsureCreated();
 builder.Services.RegisterInIoC();
+
+builder.Services.AddSingleton(x =>
+{
+    var config = new TypeAdapterConfig();
+
+    new RegisterMapper().Register(config);
+    return config;
+});
+
+builder.Services.AddGrpc();
 
 // Add services to the container.
 builder.Services.AddQuartz(q =>
@@ -77,5 +93,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGrpcService<JobService>();
 
 app.Run();
