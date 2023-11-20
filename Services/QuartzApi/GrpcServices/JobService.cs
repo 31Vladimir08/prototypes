@@ -26,7 +26,7 @@ namespace QuartzApi.GrpcServices
             try
             {
                 var job = _mapper.Map<JobSheduleModel>(request);
-                var newJob = await _quartzService.AddSheduleJobAsync(job);
+                var newJob = await _quartzService.AddUpdateSheduleJobAsync(job);
                 return new JobKeyViewModel
                 {
                     JobKey = newJob.JobKey,

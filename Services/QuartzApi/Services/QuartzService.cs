@@ -12,23 +12,29 @@ namespace QuartzApi.Services
     {
         private readonly ISchedulerFactory _factory;
 
-        public QuartzService(ISchedulerFactory factory) 
+        public QuartzService(ISchedulerFactory factory)
         {
             _factory = factory;
         }
 
-        public async Task<JobSheduleModel> AddSheduleJobAsync(JobSheduleModel job)
+        public async Task<JobSheduleModel> AddUpdateSheduleJobAsync(JobSheduleModel job)
         {
             if (job?.Triggers is null || !job.Triggers.Any())
             {
                 throw new UserException("triggers are empty.");
             }
 
+            var isReplace = !string.IsNullOrWhiteSpace(job.JobKey);
+
             var jobDataMap = new JobDataMap();
             jobDataMap.Put("data", job.Data);
 
             var jobDetails = JobBuilder.Create<StartingJob>()
-                .WithIdentity(Guid.NewGuid().ToString(), job.GroupName)
+                .WithIdentity(
+                    isReplace
+                        ? job.JobKey
+                        : Guid.NewGuid().ToString(),
+                    job.GroupName)
                 .WithDescription(job.Description)
                 .UsingJobData(jobDataMap)
                 .StoreDurably()
@@ -45,7 +51,11 @@ namespace QuartzApi.Services
             foreach (var item in job.Triggers)
             {
                 var trigger = TriggerBuilder.Create()
-                .WithIdentity($"{jobDetails.Key.Name}-trigger", job.GroupName)
+                .WithIdentity(
+                    !string.IsNullOrWhiteSpace(item.TriggerKey)
+                        ? item.TriggerKey
+                        : $"{Guid.NewGuid()}-trigger",
+                    job.GroupName)
                 .WithDescription(item.Description)
                 .WithCronSchedule(item.CronExpression, x => x.WithMisfireHandlingInstructionFireAndProceed())
                 .ForJob(jobDetails)
@@ -60,10 +70,9 @@ namespace QuartzApi.Services
                     TriggerKey = item.TriggerKey
                 });
             }
-            
 
             var scheduler = await _factory.GetScheduler();
-            await scheduler.ScheduleJob(jobDetails, triggers, false);
+            await scheduler.ScheduleJob(jobDetails, triggers, isReplace);
 
             return newJob;
         }
@@ -107,14 +116,14 @@ namespace QuartzApi.Services
         public async Task<IEnumerable<JobSheduleModel>> GetSheduleJobsAsync(string? groupName)
         {
             var scheduler = await _factory.GetScheduler();
-            return string.IsNullOrWhiteSpace(groupName) 
+            return string.IsNullOrWhiteSpace(groupName)
                 ? await GetAllSheduleJobAsync(scheduler)
                 : await GetGroupSheduleJobAsync(groupName, scheduler);
         }
 
         private async Task<IEnumerable<JobSheduleModel>> GetAllSheduleJobAsync(IScheduler scheduler)
         {
-            
+
             var jobGroups = await scheduler.GetJobGroupNames();
 
             if (jobGroups is null || !jobGroups.Any())
@@ -168,11 +177,6 @@ namespace QuartzApi.Services
             }
 
             return job;
-        }
-
-        public async Task UpdateSheduleJobAsync(JobSheduleModel job)
-        {
-            throw new NotImplementedException();
         }
     }
 }

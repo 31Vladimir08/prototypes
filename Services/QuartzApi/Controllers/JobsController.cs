@@ -32,17 +32,24 @@ namespace QuartzApi.Controllers
                 throw new UserException("Unvalid cron expression.");
             }
 
-            var newJob = await _quartzService.AddSheduleJobAsync(vm);
+            var newJob = await _quartzService.AddUpdateSheduleJobAsync(vm);
 
             return Ok(new JobAddResponseViewModel() { GroupName = newJob.GroupName, JobKey = newJob.JobKey });
         }
 
-        //[HttpPut()]
-        //[Route("updateJob")]
-        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JobResponseModel))]
-        //public async Task<IActionResult> Update([FromBody] JobResponseModel job)
-        //{
-        //}
+        [HttpPut()]
+        [Route("updateJob")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Update([FromBody] JobSheduleModel vm)
+        {
+            if (vm.Triggers.Any(x => !CronExpression.IsValidExpression(x.CronExpression)))
+            {
+                throw new UserException("Unvalid cron expression.");
+            }
+
+            await _quartzService.AddUpdateSheduleJobAsync(vm);
+            return Ok();
+        }
 
         [HttpDelete()]
         [Route("deleteJob")]
