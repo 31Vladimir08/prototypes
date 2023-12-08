@@ -92,12 +92,10 @@ builder.Services.AddTransient<IAuthorizationHandler, HasRoleHandler>(t => new Ha
 /*
  * Policy based authentication
  */
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("admin", policy => policy.AddRequirements([new HasRoleRequirement("admin")]))
-    .AddPolicy("user", policy =>
-        {
-            new KeycloakRoleAuthorizationPolicy("users_client_role");
-        });
+builder.Services.AddAuthorization(config => {
+    config.AddPolicy("adm", policy => policy.AddRequirements(new IAuthorizationRequirement[] { new HasRoleRequirement("admin") }));
+    config.AddPolicy("user", new KeycloakRoleAuthorizationPolicy("users_client_role"));
+});
 
 var app = builder.Build();
 

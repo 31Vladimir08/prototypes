@@ -18,7 +18,7 @@ namespace FiasService
             _config = config.Value;
         }
 
-        public void Consume(string topic, Action<MessageBusModel?> action)
+        public async Task ConsumeAsync(string topic, Func<MessageBusModel?, Task> action)
         {
             using (var consumer = new ConsumerBuilder<string, string>(_config)
                         .SetKeyDeserializer(Deserializers.Utf8)
@@ -36,7 +36,7 @@ namespace FiasService
 
                     var eventMessage = JsonSerializer.Deserialize<MessageBusModel>(consumeResult.Message.Value);
 
-                    action?.Invoke(eventMessage);
+                    await action(eventMessage);
                     consumer.Commit(consumeResult);
                 }
             }

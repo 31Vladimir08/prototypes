@@ -14,14 +14,13 @@ namespace Fias.Api.HostedServices
     {
         private readonly ILogger<FiasUpdateDbService> _loger;
         private readonly IServiceProvider _serviceProvider;
-        private static readonly ConcurrentDictionary<string, bool> _sessionsRun;
+        private readonly ConcurrentDictionary<string, bool> _sessionsRun;
         private static readonly Semaphore _uploadFileSemaphore;
         private static readonly Semaphore _updateDbFromFileSemaphore;
         private event Action<(string tempDirectory, FileViewModel fileVM, bool isRestoreDb)> _executeAsyncNotify;
 
         static FiasUpdateDbService()
         {
-            _sessionsRun = new ConcurrentDictionary<string, bool>();
             _uploadFileSemaphore = new Semaphore(1, 1);
             _updateDbFromFileSemaphore = new Semaphore(1, 1);
         }
@@ -30,6 +29,7 @@ namespace Fias.Api.HostedServices
             IServiceProvider serviceProvider,
             ILogger<FiasUpdateDbService> loger)
         {
+            _sessionsRun = new ConcurrentDictionary<string, bool>();
             _serviceProvider = serviceProvider;
             _loger = loger;
         }
@@ -41,7 +41,7 @@ namespace Fias.Api.HostedServices
                 var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
                 var topic = Environment.GetEnvironmentVariable("KAFKA_TOPIC");
 
-                Task.Run(() => eventConsumer.Consume("KAFKA_TOPIC", UpdateFiasFromWeb));
+                Task.Run(async () => await eventConsumer.ConsumeAsync("KAFKA_TOPIC", UpdateFiasFromWebAsync));
             }
 
             _executeAsyncNotify += async (x) =>
@@ -98,7 +98,7 @@ namespace Fias.Api.HostedServices
                 return false;
         }
 
-        private void UpdateFiasFromWeb(MessageBusModel? model)
+        private async Task UpdateFiasFromWebAsync(MessageBusModel? model)
         {
             _loger.LogWarning("UpdateFiasFromWeb");
         }

@@ -71,11 +71,10 @@ namespace Fias.Api.Services
         private async Task RemoveAllXmlTableAsync(AppDbContext context)
         {
             _loger.LogInformation($"delete all from xml tables: START");
-            var query = $"REGIONCODE = '{_regionCode}'";
-            await context.DeleteFromTableWithExpressionAsync<HouseParamEntity>(query);
-            await context.DeleteFromTableWithExpressionAsync<ParamTypesEntity>();
-            await context.DeleteFromTableWithExpressionAsync<AddrObjEntity>(query);
-            await context.DeleteFromTableWithExpressionAsync<AddrObjParamEntity>(query);
+            await context.Set<HouseParamEntity>().Where(u => u.RegionCode == _regionCode).ExecuteDeleteAsync();
+            await context.Set<ParamTypesEntity>().ExecuteDeleteAsync();
+            await context.Set<AddrObjEntity>().Where(u => u.RegionCode == _regionCode).ExecuteDeleteAsync();
+            await context.Set<AddrObjParamEntity>().Where(u => u.RegionCode == _regionCode).ExecuteDeleteAsync();
             await context.SaveChangesAsync();
 
             _loger.LogInformation($"delete all from xml tables: FINISH");

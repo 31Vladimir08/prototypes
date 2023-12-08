@@ -4,6 +4,6 @@ namespace FiasService.Interfaces
 {
     public interface IEventConsumer
     {
-        void Consume(string topic, Action<MessageBusModel?> action);
+        Task ConsumeAsync(string topic, Func<MessageBusModel?, Task> action);
     }
 }
