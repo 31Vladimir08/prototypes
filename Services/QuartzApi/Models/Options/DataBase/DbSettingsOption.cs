@@ -1,10 +1,9 @@
-﻿using QuartzApi.Enums;
+﻿using QuartzService.Enums;
 
-namespace QuartzApi.Models.Options.DataBase
+namespace QuartzService.Models.Options.DataBase;
+
+public class DbSettingsOption
 {
-    public class DbSettingsOption
-    {
-        public SupportedDb TypeDb { get; init; }
-        public string ConnectionString { get; init; }
-    }
+    public SupportedDb TypeDb { get; init; }
+    public string ConnectionString { get; init; }
 }

@@ -1,18 +1,29 @@
-﻿using QuartzApi.Interfaces.Services;
-using QuartzApi.Services;
+﻿using Mapster;
 
-namespace QuartzApi.Extensions
+using MapsterMapper;
+
+using QuartzService.Interfaces.Services;
+using QuartzService.Mappers;
+
+namespace QuartzService.Extensions;
+
+public static class RegisterDI
 {
-    public static class RegisterDI
+    public static void RegisterInIoC(this IServiceCollection services)
     {
-        public static void RegisterInIoC(this IServiceCollection services)
-        {
-            services.SetServicesDJ();
-        }
+        services.SetServicesDJ();
+    }
 
-        public static void SetServicesDJ(this IServiceCollection services)
+    public static void SetServicesDJ(this IServiceCollection services)
+    {
+        services.AddSingleton(x =>
         {
-            services.AddScoped<IQuartzService, QuartzService>();
-        }
+            var config = new TypeAdapterConfig();
+
+            new RegisterMapper().Register(config);
+            return config;
+        });
+        services.AddScoped<IMapper, ServiceMapper>();
+        services.AddScoped<IQuartzService, Services.QuartzService>();
     }
 }

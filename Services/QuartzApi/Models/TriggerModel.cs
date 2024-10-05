@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace QuartzApi.Models
+namespace QuartzService.Models;
+
+public class TriggerModel
 {
-    public class TriggerModel
-    {
-        public string TriggerKey { get; set; }
+    public string TriggerKey { get; set; }
 
-        [Required]
-        public string GroupName { get; set; }
+    [Required]
+    public string GroupName { get; set; }
 
-        [Required]
-        public string CronExpression { get; set; }
+    [Required]
+    public string CronExpression { get; set; }
 
-        public string? Description { get; set; }
-    }
+    public string? Description { get; set; }
 }

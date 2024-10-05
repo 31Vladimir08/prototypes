@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 
-namespace QuartzApi.DataBase.Entities;
+namespace QuartzService.DataBase.Entities;
 
 public partial class QrtzTriggerEntity
 {

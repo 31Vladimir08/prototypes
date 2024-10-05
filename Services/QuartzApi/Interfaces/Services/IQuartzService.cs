@@ -1,12 +1,11 @@
-﻿using QuartzApi.Models;
+﻿using QuartzService.Models;
 
-namespace QuartzApi.Interfaces.Services
+namespace QuartzService.Interfaces.Services;
+
+public interface IQuartzService
 {
-    public interface IQuartzService
-    {
-        Task<JobSheduleModel> AddUpdateSheduleJobAsync(JobSheduleModel job);
-        Task DeleteSheduleJobAsync(string jobKey, string groupName);
-        Task<JobSheduleModel> GetSheduleJobAsync(string jobKey, string groupName);
-        Task<IEnumerable<JobSheduleModel>> GetSheduleJobsAsync(string? groupName);
-    }
+    Task<JobSheduleModel> AddUpdateSheduleJobAsync(JobSheduleModel job);
+    Task DeleteSheduleJobAsync(string jobKey, string groupName);
+    Task<JobSheduleModel> GetSheduleJobAsync(string jobKey, string groupName);
+    Task<IEnumerable<JobSheduleModel>> GetSheduleJobsAsync(string? groupName);
 }

@@ -1,8 +1,7 @@
-﻿namespace QuartzApi.Enums
+﻿namespace QuartzService.Enums;
+
+public enum SupportedDb
 {
-    public enum SupportedDb
-    {
-        PostgreSQL,
-        MSSQL
-    }
+    PostgreSQL,
+    MSSQL
 }

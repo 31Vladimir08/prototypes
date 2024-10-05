@@ -1,21 +1,20 @@
 ﻿using System.Net;
 
-namespace QuartzApi.Exceptions
+namespace QuartzService.Exceptions;
+
+public class UserException : Exception
 {
-    public class UserException : Exception
+    public UserException(string message)
+        : base(message)
     {
-        public UserException(string message)
-            : base(message)
-        {
-            HttpStatusCode = HttpStatusCode.BadRequest;
-        }
-
-        public UserException(string message, HttpStatusCode httpStatusCode)
-            : base(message)
-        {
-            HttpStatusCode = httpStatusCode;
-        }
-
-        public HttpStatusCode HttpStatusCode { get; }
+        HttpStatusCode = HttpStatusCode.BadRequest;
     }
+
+    public UserException(string message, HttpStatusCode httpStatusCode)
+        : base(message)
+    {
+        HttpStatusCode = httpStatusCode;
+    }
+
+    public HttpStatusCode HttpStatusCode { get; }
 }

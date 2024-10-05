@@ -1,16 +1,15 @@
 using Confluent.Kafka;
 
-using Mapster;
-
 using Quartz;
 using Quartz.AspNetCore;
 
-using QuartzApi.Enums;
-using QuartzApi.Extensions;
-using QuartzApi.GrpcServices;
-using QuartzApi.Mappers;
-using QuartzApi.Models;
-using QuartzApi.Models.Options.DataBase;
+using QuartzService.GrpcServices;
+
+using QuartzService.DataBase;
+using QuartzService.Enums;
+using QuartzService.Extensions;
+using QuartzService.Interceptors;
+using QuartzService.Models.Options.DataBase;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,15 +21,10 @@ builder.Services.BuildServiceProvider().GetRequiredService<QuartzContext>()
     .Database.EnsureCreated();
 builder.Services.RegisterInIoC();
 
-builder.Services.AddSingleton(x =>
+builder.Services.AddGrpc(options =>
 {
-    var config = new TypeAdapterConfig();
-
-    new RegisterMapper().Register(config);
-    return config;
-});
-
-builder.Services.AddGrpc();
+    options.Interceptors.Add<LogInterceptor>();
+}).AddJsonTranscoding();
 
 // Add services to the container.
 builder.Services.AddQuartz(q =>
@@ -77,22 +71,14 @@ builder.Services.AddQuartzServer(options =>
     options.WaitForJobsToComplete = true;
 });
 
-builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddGrpcSwagger().AddSwaggerGen();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
 
 app.MapGrpcService<JobService>();
 

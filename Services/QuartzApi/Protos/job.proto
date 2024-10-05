@@ -1,12 +1,31 @@
 syntax = "proto3";
+import "google/api/annotations.proto";
 
-option csharp_namespace = "QuartzApi.Protos";
+option csharp_namespace = "QuartzService.Protos";
 
 service JobService {
-	rpc AddJob (JobResponseModel) returns (JobKeyViewModel);
-    rpc GetJob (JobKeyViewModel) returns (JobResponseModel);
-    rpc GetJobs (JobGroupNameRequest) returns (JobsResponseModel);
-    rpc DeleteJob (JobKeyViewModel) returns (JobDeleteResponseMessage);
+	rpc AddJob (JobResponseModel) returns (JobKeyViewModel){
+        option (google.api.http) = {
+            post: "/api/job/new-job",
+            body: "*"
+        };
+    };
+    rpc GetJob (JobKeyViewModel) returns (JobResponseModel){
+        option (google.api.http) = {
+            get: "/api/job"
+        };
+    };
+    rpc GetJobs (JobGroupNameRequest) returns (JobsResponseModel){
+        option (google.api.http) = {
+            get: "/api/jobs"
+        };
+    };
+    rpc DeleteJob (JobKeyViewModel) returns (JobDeleteResponseMessage){
+        option (google.api.http) = {
+            delete: "/api/jobs",
+            body: "*"
+        };
+    };
 }
 
 message JobDeleteResponseMessage {

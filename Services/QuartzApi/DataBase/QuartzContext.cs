@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-using QuartzApi.DataBase.Entities;
-using QuartzApi.Enums;
-using QuartzApi.Models.Options.DataBase;
+using QuartzService.DataBase.Entities;
+using QuartzService.Enums;
+using QuartzService.Models.Options.DataBase;
 
-namespace QuartzApi.Models;
+namespace QuartzService.DataBase;
 
 public partial class QuartzContext : DbContext
 {
