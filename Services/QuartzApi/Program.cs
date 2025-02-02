@@ -5,7 +5,6 @@ using Quartz.AspNetCore;
 
 using QuartzService.GrpcServices;
 
-using QuartzService.DataBase;
 using QuartzService.Enums;
 using QuartzService.Extensions;
 using QuartzService.Interceptors;
@@ -16,9 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<DbSettingsOption>(builder.Configuration.GetSection("DbSettings"));
 builder.Services.Configure<ProducerConfig>(builder.Configuration.GetSection(nameof(ProducerConfig)));
 
-builder.Services.AddDbContextFactory<QuartzContext>();
-builder.Services.BuildServiceProvider().GetRequiredService<QuartzContext>()
-    .Database.EnsureCreated();
 builder.Services.RegisterInIoC();
 
 builder.Services.AddGrpc(options =>
