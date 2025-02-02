@@ -6,6 +6,8 @@ using QuartzService.Protos;
 
 using QuartzService.Interfaces.Services;
 using QuartzService.Models;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using static Quartz.Logging.OperationName;
 
 namespace QuartzService.GrpcServices;
 
@@ -22,11 +24,11 @@ public class JobService : QuartzService.Protos.JobService.JobServiceBase
         _mapper = mapper;
     }
 
-    public override async Task<JobKeyViewModel> AddJob(JobResponseModel request, ServerCallContext context)
+    public override async Task<JobKeyViewModelProto> AddJob(JobResponseModelProto request, ServerCallContext context)
     {
         var job = _mapper.Map<JobSheduleModel>(request);
         var newJob = await _quartzService.AddUpdateSheduleJobAsync(job);
-        return new JobKeyViewModel
+        return new JobKeyViewModelProto
         {
             JobKey = newJob.JobKey,
             GroupName = newJob.GroupName
@@ -37,25 +39,28 @@ public class JobService : QuartzService.Protos.JobService.JobServiceBase
     //{
     //}
 
-    public async Task<JobDeleteResponseMessage> DeleteJob(JobKeyViewModel request, ServerCallContext context)
+    public override async Task<JobDeleteResponseMessageProto> DeleteJob(JobKeyViewModelProto request, ServerCallContext context)
     {
         await _quartzService.DeleteSheduleJobAsync(request.JobKey, request.GroupName);
-        return new JobDeleteResponseMessage();
+        return new JobDeleteResponseMessageProto();
     }
 
-    public async Task<JobResponseModel> GetJob(JobKeyViewModel request, ServerCallContext context)
+    public override async Task<JobResponseModelProto> GetJob(JobKeyViewModelProto request, ServerCallContext context)
     {
         var job = await _quartzService.GetSheduleJobAsync(request.JobKey, request.GroupName);
-        var result = _mapper.Map<JobResponseModel>(request);
+        var result = _mapper.Map<JobResponseModelProto>(job);
         return result;
     }
 
-    public async Task<JobsResponseModel> GetJobs(JobGroupNameRequest request, ServerCallContext context)
+    public override async Task<JobsResponseModelProto> GetJobs(JobGroupNameRequestProto request, ServerCallContext context)
     {
-        var job = await _quartzService.GetSheduleJobsAsync(request.GroupName);
-        var jobsResult = _mapper.Map<IEnumerable<JobResponseModel>>(request);
-        var result = new JobsResponseModel();
-        result.Jobs.AddRange(jobsResult);
+        var jobs = await _quartzService.GetSheduleJobsAsync(request.GroupName);
+        var result = new JobsResponseModelProto();
+        foreach (var job in jobs)
+        {
+            var jobResult = _mapper.Map<JobResponseModelProto>(job);
+            result.Jobs.Add(jobResult);
+        }
         return result;
     }
 }

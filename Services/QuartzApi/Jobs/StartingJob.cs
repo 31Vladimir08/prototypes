@@ -14,10 +14,14 @@ namespace QuartzService.Jobs;
 public class StartingJob : IJob
 {
     private readonly ProducerConfig _config;
+    private readonly ILogger<StartingJob> _logger;
 
-    public StartingJob(IOptions<ProducerConfig> config)
+    public StartingJob(
+        IOptions<ProducerConfig> config,
+        ILogger<StartingJob> logger)
     {
         _config = config.Value;
+        _logger = logger;
     }
 
     public async Task Execute(IJobExecutionContext context)
@@ -37,22 +41,23 @@ public class StartingJob : IJob
                 : string.Empty;
 
         var jsonMessage = JsonSerializer.Serialize(message);
+        _logger.LogInformation(jsonMessage);
 
-        using (var producer = new ProducerBuilder<string, string?>(_config)
-            .SetKeySerializer(Serializers.Utf8)
-            .SetValueSerializer(Serializers.Utf8)
-            .Build())
-        {
-            var result = await producer.ProduceAsync(message.GroupName, new Message<string, string?>
-            {
-                Key = message.JobKey,
-                Value = jsonMessage
-            });
-            producer.Flush(TimeSpan.FromSeconds(10));
-            if (result.Status == PersistenceStatus.NotPersisted)
-            {
-                throw new UserException($"Could not produce topic: {message.GroupName}; message: {message.JobKey}; error: {result.Message}.");
-            }
-        }
+        //using (var producer = new ProducerBuilder<string, string?>(_config)
+        //    .SetKeySerializer(Serializers.Utf8)
+        //    .SetValueSerializer(Serializers.Utf8)
+        //    .Build())
+        //{
+        //    var result = await producer.ProduceAsync(message.GroupName, new Message<string, string?>
+        //    {
+        //        Key = message.JobKey,
+        //        Value = jsonMessage
+        //    });
+        //    producer.Flush(TimeSpan.FromSeconds(10));
+        //    if (result.Status == PersistenceStatus.NotPersisted)
+        //    {
+        //        throw new UserException($"Could not produce topic: {message.GroupName}; message: {message.JobKey}; error: {result.Message}.");
+        //    }
+        //}
     }
 }

@@ -15,14 +15,14 @@ public class RegisterMapper : IRegister
             && member.Type.IsGenericType
             && member.Type.GetGenericTypeDefinition() == typeof(RepeatedField<>));
 
-        config.NewConfig<JobResponseModel, JobSheduleModel>()
+        config.NewConfig<JobResponseModelProto, JobSheduleModel>()
             .Map(x => x.JobKey, y => y.JobKey)
             .Map(x => x.GroupName, y => y.GroupName)
             .Map(x => x.Description, y => y.Description)
             .Map(x => x.Data, y => y.Data)
             .Map(x => x.Triggers, y => y.Triggers)
             .RequireDestinationMemberSource(true);
-        config.NewConfig<JobSheduleModel, JobResponseModel>()
+        config.NewConfig<JobSheduleModel, JobResponseModelProto>()
             .Map(x => x.JobKey, y => y.JobKey)
             .Map(x => x.GroupName, y => y.GroupName)
             .Map(x => x.Description, y => y.Description)
@@ -30,13 +30,13 @@ public class RegisterMapper : IRegister
             .Map(x => x.Triggers, y => y.Triggers)
             .RequireDestinationMemberSource(true);
 
-        config.NewConfig<Protos.TriggerModel, Models.TriggerModel>()
+        config.NewConfig<TriggerModelProto, TriggerModel>()
             .Map(x => x.TriggerKey, y => y.TriggerKey)
             .Map(x => x.GroupName, y => y.GroupName)
             .Map(x => x.Description, y => y.Description)
             .Map(x => x.CronExpression, y => y.CronExpression)
             .RequireDestinationMemberSource(true);
-        config.NewConfig<Models.TriggerModel, Protos.TriggerModel>()
+        config.NewConfig<TriggerModel, TriggerModelProto>()
             .Map(x => x.TriggerKey, y => y.TriggerKey)
             .Map(x => x.GroupName, y => y.GroupName)
             .Map(x => x.Description, y => y.Description)
