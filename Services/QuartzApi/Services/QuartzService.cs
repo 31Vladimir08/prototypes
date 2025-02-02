@@ -92,7 +92,7 @@ public class QuartzService : IQuartzService
             throw new UserException($"Could not find {groupName}");
         }
 
-        var groupMatcher = GroupMatcher<JobKey>.GroupContains(groupName);
+        var groupMatcher = GroupMatcher<JobKey>.GroupEquals(groupName);
         var jobKeys = await scheduler.GetJobKeys(groupMatcher);
         if (jobKeys is null || !jobKeys.Any())
         {
@@ -144,8 +144,9 @@ public class QuartzService : IQuartzService
     public async Task<JobSheduleModel> GetSheduleJobAsync(string jobKey, string groupName)
     {
         var scheduler = await _factory.GetScheduler();
-        var jobK = new JobKey(jobKey, groupName);
-        return await GetJobAsync(jobK, scheduler);
+        return await GetJobAsync(
+            new JobKey(jobKey, groupName),
+            scheduler);
     }
 
     private async Task<JobSheduleModel> GetJobAsync(JobKey key, IScheduler scheduler)

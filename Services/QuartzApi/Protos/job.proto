@@ -1,26 +1,27 @@
 syntax = "proto3";
 import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
 
 option csharp_namespace = "QuartzService.Protos";
 
 service JobService {
-	rpc AddJob (JobResponseModel) returns (JobKeyViewModel){
+	rpc AddJob (JobResponseModelProto) returns (JobKeyViewModelProto){
         option (google.api.http) = {
             post: "/api/job/new-job",
             body: "*"
         };
     };
-    rpc GetJob (JobKeyViewModel) returns (JobResponseModel){
+    rpc GetJob (JobKeyViewModelProto) returns (JobResponseModelProto){
         option (google.api.http) = {
-            get: "/api/job"
+            get: "/api/job/get-job"
         };
     };
-    rpc GetJobs (JobGroupNameRequest) returns (JobsResponseModel){
+    rpc GetJobs (JobGroupNameRequestProto) returns (JobsResponseModelProto){
         option (google.api.http) = {
-            get: "/api/jobs"
+            get: "/api/jobs/get-jobs"
         };
     };
-    rpc DeleteJob (JobKeyViewModel) returns (JobDeleteResponseMessage){
+    rpc DeleteJob (JobKeyViewModelProto) returns (JobDeleteResponseMessageProto){
         option (google.api.http) = {
             delete: "/api/jobs",
             body: "*"
@@ -28,33 +29,33 @@ service JobService {
     };
 }
 
-message JobDeleteResponseMessage {
+message JobDeleteResponseMessageProto {
 }
 
-message JobKeyViewModel {
+message JobKeyViewModelProto {
     string jobKey = 1;
     string groupName = 2;
 }
 
-message JobGroupNameRequest {
+message JobGroupNameRequestProto {
     string groupName = 1;
 }
 
-message JobsResponseModel {
-    repeated JobResponseModel jobs = 1;
+message JobsResponseModelProto {
+    repeated JobResponseModelProto jobs = 1;
 }
 
-message JobResponseModel {
+message JobResponseModelProto {
     string jobKey = 1;
     string groupName = 2;
-    repeated TriggerModel triggers = 3;
-    string description = 4;
-    string data = 5;
+    repeated TriggerModelProto triggers = 3;
+    google.protobuf.StringValue description = 4;
+    google.protobuf.StringValue data = 5;
 }
 
-message TriggerModel {
+message TriggerModelProto {
     string triggerKey = 1;
     string groupName = 2;
     string cronExpression = 3;
-    string description = 4;
+    google.protobuf.StringValue description = 4;
 }
