@@ -38,7 +38,7 @@ message JobKeyViewModelProto {
 }
 
 message JobGroupNameRequestProto {
-    string groupName = 1;
+    optional google.protobuf.StringValue groupName = 1;
 }
 
 message JobsResponseModelProto {
@@ -49,13 +49,13 @@ message JobResponseModelProto {
     string jobKey = 1;
     string groupName = 2;
     repeated TriggerModelProto triggers = 3;
-    google.protobuf.StringValue description = 4;
-    google.protobuf.StringValue data = 5;
+    optional google.protobuf.StringValue description = 4;
+    optional google.protobuf.StringValue data = 5;
 }
 
 message TriggerModelProto {
     string triggerKey = 1;
     string groupName = 2;
     string cronExpression = 3;
-    google.protobuf.StringValue description = 4;
+    optional google.protobuf.StringValue description = 4;
 }
